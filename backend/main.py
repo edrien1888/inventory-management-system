@@ -1,10 +1,12 @@
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 import models
 from auth import (
     create_access_token,
+    decode_access_token,
     hash_password,
     verify_password,
 )
@@ -22,7 +24,9 @@ from schemas import (
     UserResponse,
 )
 
+
 app = FastAPI()
+security = HTTPBearer()
 
 Base.metadata.create_all(bind=engine)
 
@@ -35,7 +39,41 @@ def get_db():
     finally:
         db.close()
 
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+):
+    token = credentials.credentials
 
+    payload = decode_access_token(token)
+
+    if not payload:
+        raise HTTPException(
+            status_code=401,
+            detail="Token inválido o expirado"
+        )
+
+    user_id = payload.get("sub")
+
+    if not user_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Token inválido"
+        )
+
+    user = db.query(
+        models.User
+    ).filter(
+        models.User.id == int(user_id)
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Usuario no encontrado"
+        )
+
+    return user
 
 @app.get("/")
 def home():
@@ -53,13 +91,14 @@ def test_database():
         "message": "PostgreSQL conectado correctamente"
     }
 
-
 @app.post("/auth/register", response_model=UserResponse)
 def register_user(
     user: UserCreate,
     db: Session = Depends(get_db)
 ):
-    existing_user = db.query(models.User).filter(
+    existing_user = db.query(
+        models.User
+    ).filter(
         models.User.email == user.email
     ).first()
 
@@ -87,7 +126,9 @@ def login_user(
     credentials: UserLogin,
     db: Session = Depends(get_db)
 ):
-    user = db.query(models.User).filter(
+    user = db.query(
+        models.User
+    ).filter(
         models.User.email == credentials.email
     ).first()
 
@@ -117,15 +158,14 @@ def login_user(
         "access_token": access_token,
         "token_type": "bearer"
     }
-
-
 @app.post(
     "/categories",
     response_model=CategoryResponse
 )
 def create_category(
     category: CategoryCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     existing_category = db.query(
         models.Category
@@ -155,7 +195,8 @@ def create_category(
     response_model=list[CategoryResponse]
 )
 def get_categories(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     return db.query(
         models.Category
@@ -169,7 +210,8 @@ def get_categories(
 def update_category(
     category_id: int,
     category: CategoryCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     existing_category = db.query(
         models.Category
@@ -207,7 +249,8 @@ def update_category(
 @app.delete("/categories/{category_id}")
 def delete_category(
     category_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     category = db.query(
         models.Category
@@ -228,14 +271,14 @@ def delete_category(
         "message": "Categoría eliminada correctamente"
     }
 
-
 @app.post(
     "/products",
     response_model=ProductResponse
 )
 def create_product(
     product: ProductCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     category = db.query(
         models.Category
@@ -281,7 +324,8 @@ def create_product(
     response_model=list[ProductResponse]
 )
 def get_products(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     return db.query(
         models.Product
@@ -295,7 +339,8 @@ def get_products(
 def update_product(
     product_id: int,
     product: ProductCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     existing_product = db.query(
         models.Product
@@ -348,7 +393,8 @@ def update_product(
 @app.delete("/products/{product_id}")
 def delete_product(
     product_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     product = db.query(
         models.Product
@@ -368,13 +414,15 @@ def delete_product(
     return {
         "message": "Producto eliminado correctamente"
     }
+
 @app.post(
     "/movements",
     response_model=MovementResponse
 )
 def create_movement(
     movement: MovementCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     product = db.query(
         models.Product
@@ -388,22 +436,18 @@ def create_movement(
             detail="Producto no encontrado"
         )
 
-    user = db.query(
-        models.User
-    ).filter(
-        models.User.id == movement.user_id
-    ).first()
-
-    if not user:
+    if movement.quantity <= 0:
         raise HTTPException(
-            status_code=404,
-            detail="Usuario no encontrado"
+            status_code=400,
+            detail="La cantidad debe ser mayor que cero"
         )
 
-    if movement.movement_type == "entrada":
+    movement_type = movement.movement_type.lower().strip()
+
+    if movement_type == "entrada":
         product.stock += movement.quantity
 
-    elif movement.movement_type == "salida":
+    elif movement_type == "salida":
         if product.stock < movement.quantity:
             raise HTTPException(
                 status_code=400,
@@ -415,14 +459,14 @@ def create_movement(
     else:
         raise HTTPException(
             status_code=400,
-            detail="Tipo de movimiento inválido"
+            detail="Tipo de movimiento inválido. Use 'entrada' o 'salida'"
         )
 
     new_movement = models.Movement(
-        movement_type=movement.movement_type,
+        movement_type=movement_type,
         quantity=movement.quantity,
         product_id=movement.product_id,
-        user_id=movement.user_id
+        user_id=current_user.id
     )
 
     db.add(new_movement)
@@ -431,15 +475,15 @@ def create_movement(
 
     return new_movement
 
+
 @app.get(
     "/movements",
     response_model=list[MovementResponse]
 )
 def get_movements(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     return db.query(
         models.Movement
     ).all()
-
-                

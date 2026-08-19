@@ -56,12 +56,12 @@ class ProductResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        
+
+
 class MovementCreate(BaseModel):
     movement_type: str
     quantity: int
     product_id: int
-    user_id: int
 
 
 class MovementResponse(BaseModel):
