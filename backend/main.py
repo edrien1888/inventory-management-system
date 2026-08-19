@@ -10,6 +10,8 @@ from auth import (
 )
 from database import Base, SessionLocal, engine
 from schemas import (
+    CategoryCreate,
+    CategoryResponse,
     TokenResponse,
     UserCreate,
     UserLogin,
@@ -110,3 +112,113 @@ def login_user(
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+
+@app.post(
+    "/categories",
+    response_model=CategoryResponse
+)
+def create_category(
+    category: CategoryCreate,
+    db: Session = Depends(get_db)
+):
+    existing_category = db.query(
+        models.Category
+    ).filter(
+        models.Category.name == category.name
+    ).first()
+
+    if existing_category:
+        raise HTTPException(
+            status_code=400,
+            detail="La categoría ya existe"
+        )
+
+    new_category = models.Category(
+        name=category.name
+    )
+
+    db.add(new_category)
+    db.commit()
+    db.refresh(new_category)
+
+    return new_category
+
+
+@app.get(
+    "/categories",
+    response_model=list[CategoryResponse]
+)
+def get_categories(
+    db: Session = Depends(get_db)
+):
+    return db.query(
+        models.Category
+    ).all()
+    
+@app.put(
+    "/categories/{category_id}",
+    response_model=CategoryResponse
+)
+def update_category(
+    category_id: int,
+    category: CategoryCreate,
+    db: Session = Depends(get_db)
+):
+    existing_category = db.query(
+        models.Category
+    ).filter(
+        models.Category.id == category_id
+    ).first()
+
+    if not existing_category:
+        raise HTTPException(
+            status_code=404,
+            detail="Categoría no encontrada"
+        )
+
+    duplicate_category = db.query(
+        models.Category
+    ).filter(
+        models.Category.name == category.name,
+        models.Category.id != category_id
+    ).first()
+
+    if duplicate_category:
+        raise HTTPException(
+            status_code=400,
+            detail="Ya existe una categoría con ese nombre"
+        )
+
+    existing_category.name = category.name
+
+    db.commit()
+    db.refresh(existing_category)
+
+    return existing_category
+
+
+@app.delete("/categories/{category_id}")
+def delete_category(
+    category_id: int,
+    db: Session = Depends(get_db)
+):
+    category = db.query(
+        models.Category
+    ).filter(
+        models.Category.id == category_id
+    ).first()
+
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="Categoría no encontrada"
+        )
+
+    db.delete(category)
+    db.commit()
+
+    return {
+        "message": "Categoría eliminada correctamente"
+    }
+                
