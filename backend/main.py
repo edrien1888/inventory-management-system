@@ -12,6 +12,8 @@ from database import Base, SessionLocal, engine
 from schemas import (
     CategoryCreate,
     CategoryResponse,
+    ProductCreate,
+    ProductResponse,
     TokenResponse,
     UserCreate,
     UserLogin,
@@ -30,6 +32,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 
 @app.get("/")
@@ -155,7 +158,8 @@ def get_categories(
     return db.query(
         models.Category
     ).all()
-    
+
+
 @app.put(
     "/categories/{category_id}",
     response_model=CategoryResponse
@@ -221,4 +225,147 @@ def delete_category(
     return {
         "message": "Categoría eliminada correctamente"
     }
+
+
+@app.post(
+    "/products",
+    response_model=ProductResponse
+)
+def create_product(
+    product: ProductCreate,
+    db: Session = Depends(get_db)
+):
+    category = db.query(
+        models.Category
+    ).filter(
+        models.Category.id == product.category_id
+    ).first()
+
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="La categoría no existe"
+        )
+
+    if product.price < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="El precio no puede ser negativo"
+        )
+
+    if product.stock < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="El stock no puede ser negativo"
+        )
+
+    new_product = models.Product(
+        name=product.name,
+        description=product.description,
+        price=product.price,
+        stock=product.stock,
+        category_id=product.category_id
+    )
+
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+
+    return new_product
+
+
+@app.get(
+    "/products",
+    response_model=list[ProductResponse]
+)
+def get_products(
+    db: Session = Depends(get_db)
+):
+    return db.query(
+        models.Product
+    ).all()
+
+
+@app.put(
+    "/products/{product_id}",
+    response_model=ProductResponse
+)
+def update_product(
+    product_id: int,
+    product: ProductCreate,
+    db: Session = Depends(get_db)
+):
+    existing_product = db.query(
+        models.Product
+    ).filter(
+        models.Product.id == product_id
+    ).first()
+
+    if not existing_product:
+        raise HTTPException(
+            status_code=404,
+            detail="Producto no encontrado"
+        )
+
+    category = db.query(
+        models.Category
+    ).filter(
+        models.Category.id == product.category_id
+    ).first()
+
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="La categoría no existe"
+        )
+
+    if product.price < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="El precio no puede ser negativo"
+        )
+
+    if product.stock < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="El stock no puede ser negativo"
+        )
+
+    existing_product.name = product.name
+    existing_product.description = product.description
+    existing_product.price = product.price
+    existing_product.stock = product.stock
+    existing_product.category_id = product.category_id
+
+    db.commit()
+    db.refresh(existing_product)
+
+    return existing_product
+
+
+@app.delete("/products/{product_id}")
+def delete_product(
+    product_id: int,
+    db: Session = Depends(get_db)
+):
+    product = db.query(
+        models.Product
+    ).filter(
+        models.Product.id == product_id
+    ).first()
+
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Producto no encontrado"
+        )
+
+    db.delete(product)
+    db.commit()
+
+    return {
+        "message": "Producto eliminado correctamente"
+    }
+
+
                 
