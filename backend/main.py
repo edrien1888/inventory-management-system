@@ -1,21 +1,27 @@
 from fastapi import FastAPI
-from sqlalchemy import  text
+from sqlalchemy import text
 
-from database import engine
+import models
+from database import Base, engine
+
 
 app = FastAPI()
 
+Base.metadata.create_all(bind=engine)
+
+
 @app.get("/")
 def home():
-                return{
-                                "mensage":"Backend funcionando correctamente"
-                }
+                return {
+                "message": "Backend funcionando correctamente"
+    }
+
 
 @app.get("/test-db")
-def home():
-                with engine.connect() as connection:
-                                connection.execute(text("SELECT 1"))
-                                
-                return{
-                                "message":"PostgreSQL conectado correctamente"
-                }
+def test_database():
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+
+    return {
+        "message": "PostgreSQL conectado correctamente"
+    }
