@@ -3,9 +3,18 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 import models
-from auth import hash_password
+from auth import (
+    create_access_token,
+    hash_password,
+    verify_password,
+)
 from database import Base, SessionLocal, engine
-from schemas import UserCreate, UserResponse
+from schemas import (
+    TokenResponse,
+    UserCreate,
+    UserLogin,
+    UserResponse,
+)
 
 app = FastAPI()
 
@@ -64,3 +73,40 @@ def register_user(
     db.refresh(new_user)
 
     return new_user
+
+
+@app.post("/auth/login", response_model=TokenResponse)
+def login_user(
+    credentials: UserLogin,
+    db: Session = Depends(get_db)
+):
+    user = db.query(models.User).filter(
+        models.User.email == credentials.email
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Correo o contraseña incorrectos"
+        )
+
+    if not verify_password(
+        credentials.password,
+        user.password_hash
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Correo o contraseña incorrectos"
+        )
+
+    access_token = create_access_token(
+        {
+            "sub": str(user.id),
+            "email": user.email
+        }
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
