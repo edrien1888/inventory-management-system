@@ -12,6 +12,8 @@ from database import Base, SessionLocal, engine
 from schemas import (
     CategoryCreate,
     CategoryResponse,
+    MovementCreate,
+    MovementResponse,
     ProductCreate,
     ProductResponse,
     TokenResponse,
@@ -366,6 +368,78 @@ def delete_product(
     return {
         "message": "Producto eliminado correctamente"
     }
+@app.post(
+    "/movements",
+    response_model=MovementResponse
+)
+def create_movement(
+    movement: MovementCreate,
+    db: Session = Depends(get_db)
+):
+    product = db.query(
+        models.Product
+    ).filter(
+        models.Product.id == movement.product_id
+    ).first()
 
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Producto no encontrado"
+        )
+
+    user = db.query(
+        models.User
+    ).filter(
+        models.User.id == movement.user_id
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Usuario no encontrado"
+        )
+
+    if movement.movement_type == "entrada":
+        product.stock += movement.quantity
+
+    elif movement.movement_type == "salida":
+        if product.stock < movement.quantity:
+            raise HTTPException(
+                status_code=400,
+                detail="Stock insuficiente"
+            )
+
+        product.stock -= movement.quantity
+
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Tipo de movimiento inválido"
+        )
+
+    new_movement = models.Movement(
+        movement_type=movement.movement_type,
+        quantity=movement.quantity,
+        product_id=movement.product_id,
+        user_id=movement.user_id
+    )
+
+    db.add(new_movement)
+    db.commit()
+    db.refresh(new_movement)
+
+    return new_movement
+
+@app.get(
+    "/movements",
+    response_model=list[MovementResponse]
+)
+def get_movements(
+    db: Session = Depends(get_db)
+):
+    return db.query(
+        models.Movement
+    ).all()
 
                 
