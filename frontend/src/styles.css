@@ -1,1 +1,348 @@
+* {
+                box-sizing: border-box;
+}
+
+html,
+body {
+                margin: 0;
+                min-height: 100%;
+                font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+                min-height: 100vh;
+                color: #f8fafc;
+                background:
+                                radial-gradient(circle at top left, rgba(0, 112, 255, 0.25), transparent 35%),
+                                radial-gradient(circle at bottom right, rgba(230, 0, 35, 0.22), transparent 35%),
+                                linear-gradient(135deg, #020617 0%, #07152d 45%, #081b3a 100%);
+}
+
+
+/* =========================
+   TÍTULOS
+========================= */
+
+h1 {
+                margin-bottom: 25px;
+                font-size: 2.4rem;
+                font-weight: 800;
+                letter-spacing: 1px;
+                color: #ffffff;
+                text-shadow:
+                                0 0 10px rgba(0, 119, 255, 0.7),
+                                0 0 25px rgba(0, 119, 255, 0.35);
+}
+
+h2,
+h3 {
+                color: #ffffff;
+}
+
+p {
+                color: #b8c7df;
+}
+
+
+/* =========================
+   LINKS
+========================= */
+
+a {
+                color: #41a5ff;
+                text-decoration: none;
+                transition: 0.25s;
+}
+
+a:hover {
+                color: #ffffff;
+}
+
+
+/* =========================
+   DASHBOARD / NAV
+========================= */
+
+nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+                margin-top: 30px;
+}
+
+nav a,
+nav button {
+                padding: 14px 22px;
+                border: 1px solid rgba(60, 160, 255, 0.6);
+                border-radius: 12px;
+                background: rgba(8, 34, 74, 0.8);
+                color: #ffffff;
+                font-size: 15px;
+                font-weight: 700;
+                cursor: pointer;
+                backdrop-filter: blur(12px);
+                box-shadow:
+                                0 0 12px rgba(0, 119, 255, 0.2),
+                                inset 0 0 8px rgba(255, 255, 255, 0.03);
+                transition: all 0.25s ease;
+}
+
+nav a:hover {
+                transform: translateY(-3px);
+                border-color: #1e90ff;
+                box-shadow:
+                                0 0 18px rgba(0, 119, 255, 0.65),
+                                0 0 35px rgba(0, 119, 255, 0.25);
+}
+
+nav button {
+                border-color: rgba(240, 30, 55, 0.7);
+                background: rgba(120, 10, 30, 0.35);
+}
+
+nav button:hover {
+                transform: translateY(-3px);
+                background: #d7193f;
+                border-color: #ff405f;
+                box-shadow:
+                                0 0 18px rgba(230, 0, 40, 0.65),
+                                0 0 35px rgba(230, 0, 40, 0.25);
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+.login-container {
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 25px;
+}
+
+.login-card {
+                width: 100%;
+                max-width: 430px;
+                padding: 42px;
+                border-radius: 24px;
+                border: 1px solid rgba(70, 160, 255, 0.35);
+                background:
+                                linear-gradient(145deg,
+                                                rgba(8, 26, 58, 0.94),
+                                                rgba(4, 17, 39, 0.94));
+                backdrop-filter: blur(18px);
+                box-shadow:
+                                0 0 30px rgba(0, 119, 255, 0.25),
+                                0 0 70px rgba(0, 70, 160, 0.15);
+}
+
+.login-card h1 {
+                text-align: center;
+                margin-top: 0;
+}
+
+.login-card>p {
+                text-align: center;
+                margin-bottom: 30px;
+}
+
+
+/* =========================
+   FORMULARIOS
+========================= */
+
+form {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+}
+
+label {
+                color: #d5e5ff;
+                font-size: 14px;
+                font-weight: 700;
+}
+
+input,
+select,
+textarea {
+                width: 100%;
+                padding: 14px 16px;
+                border-radius: 10px;
+                border: 1px solid #234875;
+                outline: none;
+                background: rgba(3, 18, 42, 0.9);
+                color: #ffffff;
+                font-size: 15px;
+                transition: 0.25s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+                border-color: #168bff;
+                box-shadow:
+                                0 0 0 3px rgba(22, 139, 255, 0.12),
+                                0 0 18px rgba(22, 139, 255, 0.28);
+}
+
+
+/* =========================
+   BOTONES
+========================= */
+
+button {
+                padding: 14px 20px;
+                border: none;
+                border-radius: 10px;
+                background: linear-gradient(135deg, #0069d9, #008cff);
+                color: #ffffff;
+                font-weight: 800;
+                font-size: 15px;
+                cursor: pointer;
+                transition: all 0.25s ease;
+}
+
+button:hover {
+                transform: translateY(-2px);
+                box-shadow:
+                                0 0 18px rgba(0, 140, 255, 0.6),
+                                0 0 35px rgba(0, 90, 255, 0.25);
+}
+
+
+/* =========================
+   MENSAJES
+========================= */
+
+.error {
+                margin-top: 18px;
+                padding: 12px;
+                border-radius: 10px;
+                color: #ff9baa;
+                background: rgba(180, 15, 40, 0.2);
+                border: 1px solid rgba(255, 50, 80, 0.35);
+}
+
+
+/* =========================
+   TABLAS
+========================= */
+
+table {
+                width: 100%;
+                margin-top: 25px;
+                border-collapse: separate;
+                border-spacing: 0;
+                overflow: hidden;
+                border-radius: 16px;
+                background: rgba(4, 21, 48, 0.88);
+                border: 1px solid rgba(50, 140, 240, 0.25);
+                box-shadow:
+                                0 0 25px rgba(0, 90, 200, 0.12);
+}
+
+thead {
+                background: linear-gradient(90deg,
+                                                rgba(0, 80, 180, 0.9),
+                                                rgba(0, 126, 255, 0.75));
+}
+
+th {
+                padding: 16px;
+                text-align: left;
+                color: #ffffff;
+                font-size: 14px;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+}
+
+td {
+                padding: 15px 16px;
+                color: #dbeafe;
+                border-top: 1px solid rgba(100, 160, 220, 0.12);
+}
+
+tbody tr {
+                transition: 0.2s;
+}
+
+tbody tr:hover {
+                background: rgba(0, 120, 255, 0.1);
+}
+
+
+/* =========================
+   CONTENIDO DE PÁGINAS
+========================= */
+
+app-dashboard,
+app-categories,
+app-products,
+app-inventory {
+                display: block;
+                width: min(1150px, calc(100% - 40px));
+                margin: 0 auto;
+                padding: 60px 0;
+}
+
+
+/* =========================
+   SCROLLBAR FUTURISTA
+========================= */
+
+::-webkit-scrollbar {
+                width: 10px;
+}
+
+::-webkit-scrollbar-track {
+                background: #020817;
+}
+
+::-webkit-scrollbar-thumb {
+                background: linear-gradient(#0077ff, #d7193f);
+                border-radius: 10px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+                h1 {
+                                font-size: 1.8rem;
+                }
+
+                nav {
+                                flex-direction: column;
+                }
+
+                nav a,
+                nav button {
+                                width: 100%;
+                                text-align: center;
+                }
+
+                .login-card {
+                                padding: 28px 22px;
+                }
+
+                table {
+                                display: block;
+                                overflow-x: auto;
+                                white-space: nowrap;
+                }
+
+                app-dashboard,
+                app-categories,
+                app-products,
+                app-inventory {
+                                width: calc(100% - 24px);
+                                padding: 35px 0;
+                }
+}
+
 /* You can add global styles to this file, and also import other style files */
