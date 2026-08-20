@@ -1,0 +1,19 @@
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+backend/.env
+
+# Angular / Node
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+
+# IDE / OS
+.vscode/
+.DS_Store
+Thumbs.db
