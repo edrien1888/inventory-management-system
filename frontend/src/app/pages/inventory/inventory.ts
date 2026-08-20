@@ -27,7 +27,7 @@ export class Inventory implements OnInit {
     }
 
     this.http.get<any[]>(
-      'http://127.0.0.1:8000/movements',
+      'https://inventory-management-api-hdxr.onrender.com/movements',
       {
         headers: {
           Authorization: `Bearer ${token}`

@@ -27,7 +27,7 @@ export class Categories implements OnInit {
     }
 
     this.http.get<any[]>(
-      'http://127.0.0.1:8000/categories',
+      'https://inventory-management-api-hdxr.onrender.com/categories',
       {
         headers: {
           Authorization: `Bearer ${token}`

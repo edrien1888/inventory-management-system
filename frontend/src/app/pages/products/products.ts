@@ -27,7 +27,7 @@ export class Products implements OnInit {
     }
 
     this.http.get<any[]>(
-      'http://127.0.0.1:8000/products',
+      'https://inventory-management-api-hdxr.onrender.com/products',
       {
         headers: {
           Authorization: `Bearer ${token}`

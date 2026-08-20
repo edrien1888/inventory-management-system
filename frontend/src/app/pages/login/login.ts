@@ -30,9 +30,10 @@ export class Login {
       email: this.email,
       password: this.password
     };
+    console.log('Datos enviados:', body);
 
     this.http.post<any>(
-      'http://127.0.0.1:8000/auth/login',
+      'https://inventory-management-api-hdxr.onrender.com/auth/login',
       body
     ).subscribe({
       next: (response) => {
