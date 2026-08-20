@@ -1,0 +1,35 @@
+<div>
+                <h1>Productos</h1>
+
+                <p *ngIf="errorMessage()">
+                                {{ errorMessage() }}
+                </p>
+
+                <p *ngIf="!errorMessage() && products().length === 0">
+                                No hay productos registrados.
+                </p>
+
+                <table *ngIf="products().length > 0">
+                                <thead>
+                                                <tr>
+                                                                <th>ID</th>
+                                                                <th>Nombre</th>
+                                                                <th>Descripción</th>
+                                                                <th>Precio</th>
+                                                                <th>Stock</th>
+                                                                <th>Categoría ID</th>
+                                                </tr>
+                                </thead>
+
+                                <tbody>
+                                                <tr *ngFor="let product of products()">
+                                                                <td>{{ product.id }}</td>
+                                                                <td>{{ product.name }}</td>
+                                                                <td>{{ product.description }}</td>
+                                                                <td>Q {{ product.price }}</td>
+                                                                <td>{{ product.stock }}</td>
+                                                                <td>{{ product.category_id }}</td>
+                                                </tr>
+                                </tbody>
+                </table>
+</div>

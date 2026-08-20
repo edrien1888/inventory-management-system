@@ -1,0 +1,33 @@
+<div>
+                <h1>Inventario</h1>
+
+                <p *ngIf="errorMessage()">
+                                {{ errorMessage() }}
+                </p>
+
+                <p *ngIf="!errorMessage() && movements().length === 0">
+                                No hay movimientos registrados.
+                </p>
+
+                <table *ngIf="movements().length > 0">
+                                <thead>
+                                                <tr>
+                                                                <th>ID</th>
+                                                                <th>Tipo</th>
+                                                                <th>Cantidad</th>
+                                                                <th>Producto ID</th>
+                                                                <th>Usuario ID</th>
+                                                </tr>
+                                </thead>
+
+                                <tbody>
+                                                <tr *ngFor="let movement of movements()">
+                                                                <td>{{ movement.id }}</td>
+                                                                <td>{{ movement.movement_type }}</td>
+                                                                <td>{{ movement.quantity }}</td>
+                                                                <td>{{ movement.product_id }}</td>
+                                                                <td>{{ movement.user_id }}</td>
+                                                </tr>
+                                </tbody>
+                </table>
+</div>
