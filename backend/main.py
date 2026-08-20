@@ -28,8 +28,9 @@ from schemas import (
 
 app = FastAPI()
 origins = [
-    "http://localhost:4200",
+     "http://localhost:4200",
     "http://127.0.0.1:4200",
+    "https://inventory-management-frontend-three-rose.vercel.app",
 ]
 
 app.add_middleware(
